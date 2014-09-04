@@ -1,0 +1,57 @@
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class LotteryServentMain 
+{
+//	static String HOST = "localhost";
+//	static int PORT = 4444;
+//
+//	static String NAMING_SERVER_HOST = "localhost";
+//	static int NAMING_SERVER_PORT = 5555;
+	
+	public static void main(String[] args) 
+	{
+		try
+		{
+			RemoteRefLocalMap remoteReferenceModule = new RemoteRefLocalMap();
+			
+			MegaMillion megaMillion = new MegaMillion(Info.SERVENT_SERVER_HOST, Info.SERVENT_SERVER_PORT, "1");
+			PowerBall powerBall = new PowerBall(Info.SERVENT_SERVER_HOST, Info.SERVENT_SERVER_PORT, "2");
+			
+			remoteReferenceModule.addRemoteObject(megaMillion.getRemoteObject().getObjectId(), megaMillion);
+			remoteReferenceModule.addRemoteObject(powerBall.getRemoteObject().getObjectId(), powerBall);
+			
+			
+			NamingProxy namingStub = new NamingProxy(Info.NAMING_SERVER_HOST, Info.NAMING_SERVER_PORT);
+			namingStub.bind("MegaMillion", megaMillion.getRemoteObject());
+			namingStub.bind("PowerBall", powerBall.getRemoteObject());
+			
+			
+			ServerSocket serverSocket = new ServerSocket(Info.SERVENT_SERVER_PORT);
+			Socket socket;
+			
+			int i = 0;
+			while(true)
+			{
+				socket = serverSocket.accept();
+				
+				Servent workerThread = new Servent(socket, remoteReferenceModule);
+				Thread thread = new Thread(workerThread);
+				thread.start();
+				
+				i++;
+			}
+		}
+		catch(Exception ex)
+		{
+			System.out.println("LotteryServent.MainProgram -> " + ex.toString());
+		}
+		
+	}
+
+}

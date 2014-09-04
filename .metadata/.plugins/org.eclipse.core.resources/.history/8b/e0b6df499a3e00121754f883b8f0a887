@@ -1,0 +1,22 @@
+
+public class RemoteRefModule 
+{
+
+	public static Object getProxyObject(RemoteObject remoteObject)
+	{
+		if(remoteObject.getClassName().equals("PortalServant"))
+		{
+			PortalServantStub protalServantStub = new PortalServantStub(remoteObject);
+			
+			return (Object)protalServantStub;
+		}
+		if(remoteObject.getClassName().equals("Account"))
+		{
+			AccountStub accountStub = new AccountStub(remoteObject);
+			
+			return (Object)accountStub;
+		}
+		return null;
+	}
+	
+}

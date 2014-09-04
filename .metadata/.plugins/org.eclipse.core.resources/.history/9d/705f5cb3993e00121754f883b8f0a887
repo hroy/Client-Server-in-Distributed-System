@@ -1,0 +1,31 @@
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class MainProgram 
+{
+	
+	
+	public static void main(String[] args) 
+	{
+		ServerSocket serverSocket;
+		Socket socket;
+		Naming mapTable = new Naming();
+		
+		int port = 5555;
+		serverSocket = new ServerSocket(port);
+		
+		Dispatcher dispatcher = new Dispatcher(5555);
+		dispatcher.listenSocket();
+		
+		while(true)
+		{
+			socket = serverSocket.accept();
+			
+			WorkerThread workerThread = new WorkerThread(socket, mapTable);
+			Thread thread = new Thread(workerThread);
+			thread.start();
+			
+			i++;
+		}
+	}
+}

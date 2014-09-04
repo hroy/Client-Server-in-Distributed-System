@@ -11,7 +11,7 @@ public class Client
 		
 		PortalServantProxy protalServantPrxy = new PortalServantProxy(remoteObject);
 		
-		//remoteObject = (ROR)protalServantPrxy.openAccount("H", "H", "3");
+		remoteObject = (ROR)protalServantPrxy.openAccount("H", "H", "3");
 		
 		remoteObject = (ROR)protalServantPrxy.login("H", "H");
 		

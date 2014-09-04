@@ -1,0 +1,8 @@
+
+public interface NamingInterface 
+{
+	public void bind(String name, Object ROR);
+	public void rebind(String name, Object ROR);
+	public void unbind(String name);
+	public Object lookup(String name);
+}

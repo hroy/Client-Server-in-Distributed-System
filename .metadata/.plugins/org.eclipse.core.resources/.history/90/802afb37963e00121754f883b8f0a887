@@ -1,0 +1,70 @@
+
+public class PortalServantSkeleton implements PortalServantInterface 
+{
+	RemoteObject remoteObject;
+	PortalServant portalServant;
+		
+	public PortalServantSkeleton(RemoteObject remoteObject, PortalServant portalServant)
+	{
+		this.remoteObject = remoteObject;
+		this.portalServant = portalServant;
+	}
+	
+	@Override
+	public Object openAccount(String userName, String password, String objectId) 
+	{
+		return null;
+	}
+
+	@Override
+	public Object login(String userName, String password) 
+	{
+		return null;
+	}
+
+	@Override
+	public Object closeAccount(String userName, String password) 
+	{
+		return null;
+	}
+	
+	public Object unmarshall()
+	{
+		try 
+		{
+			String methodName = remoteObject.getMethodName();
+			
+			if(methodName.equals("openAccount"))
+			{
+				String[] parameters = remoteObject.getParameter().split(",");
+				
+				Object accountObject = portalServant.openAccount(parameters[0], parameters[1], parameters[2]);
+				
+				return accountObject;
+			}
+			else if(methodName.equals("login"))
+			{
+				String[] parameters = remoteObject.getParameter().split(",");
+				
+				Object accountObject = portalServant.login(parameters[0], parameters[1]);
+				
+				return accountObject;
+			}
+			else if(methodName.equals("closeAccount"))
+			{
+				String[] parameters = remoteObject.getParameter().split(",");
+				
+				Object accountObject = portalServant.closeAccount(parameters[0], parameters[1]);
+				
+				return accountObject;
+			}
+		} 
+		catch (Exception ex) 
+		{
+			System.out.println("PortalServantkeleton.unmarshall() -> " + ex.toString());
+		}
+
+		return null;
+	}
+
+}

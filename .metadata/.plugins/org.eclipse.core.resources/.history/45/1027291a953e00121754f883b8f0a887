@@ -1,0 +1,105 @@
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+
+public class WorkerThread implements Runnable
+{
+	Socket socket;
+	RemoteRefModule remoteReferenceModule;
+	
+	public WorkerThread(Socket socket, RemoteRefModule remoteReferenceModule)
+	{
+		this.socket = socket;
+		this.remoteReferenceModule = remoteReferenceModule;
+	}
+
+	@Override
+	public void run()
+	{
+		try
+		{
+			ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			
+			Object object = objectInputStream.readObject();
+			RemoteObject remoteObject = (RemoteObject)object;
+			
+			System.out.println("Reqest recieved ObjectId: " + remoteObject.getObjectId());
+			System.out.println("MethodName: " + remoteObject.getMethodName());
+			System.out.println("Parameter: " + remoteObject.getParameter());
+			
+			Object localObject = remoteReferenceModule.getRemoteObject(remoteObject.getObjectId());
+			
+			Object returnObject = null;
+			if(localObject instanceof MegaMillion)
+			{
+				//MegaMillionSkeleton megaMillionSkeleton = new MegaMillionSkeleton();
+				//returnObject = megaMillionSkeleton.unmarshall(remoteObject, (MegaMillion)localObject);
+				if(remoteObject.getMethodName().equals("sellTicketQuickPick"))
+				{
+					String ticketNo = megaMillionLocal.sellTicketQuickPick();
+					
+					System.out.println("MegaMillion Return Result: " + ticketNo);
+					
+					return (Object)ticketNo;
+				}
+				else if(remoteObject.getMethodName().equals("sellTicketManual"))
+				{
+					String ticketNo = remoteObject.getParameter();
+					Object resultObject = megaMillionLocal.sellTicketManual(ticketNo);
+					
+					if(resultObject instanceof Integer)
+						System.out.println("MegaMillion Return Result: " + (Integer)resultObject);
+					else
+						System.out.println("MegaMillion Return Result: " + (boolean)resultObject);
+					
+					
+					return resultObject;
+				}
+				else if(remoteObject.getMethodName().equals("getPastJackPotNumbers"))
+				{
+					
+					String[] jackpotNumbers = megaMillionLocal.getPastJackPotNumbers();
+					
+					System.out.println("MegaMillion Return Result: ");
+					
+					for(String jackpot : jackpotNumbers)
+					{
+						System.out.println("jackpot numbers: " + jackpot);
+					}
+					
+					return (Object)jackpotNumbers;
+				}
+				else if(remoteObject.getMethodName().equals("checkWinner"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					boolean result = megaMillionLocal.checkWinner(parameters[1], Integer.parseInt(parameters[0]));
+					
+					System.out.println("MegaMillion Return Result: " + result);
+					
+					return (Object)result;
+				}
+				
+			}
+			if(localObject instanceof PowerBall)
+			{
+				PowerBallSkeleton powerBallSkeleton = new PowerBallSkeleton();
+				returnObject = powerBallSkeleton.unmarshall(remoteObject, (PowerBall)localObject);
+			}
+			System.out.println("");
+				
+			objectOutputStream.writeObject(returnObject);
+			
+			objectOutputStream.close();
+			objectInputStream.close();
+			socket.close();
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("WorkerThread.run() -> " + ex.toString());
+		}
+	}
+	
+}

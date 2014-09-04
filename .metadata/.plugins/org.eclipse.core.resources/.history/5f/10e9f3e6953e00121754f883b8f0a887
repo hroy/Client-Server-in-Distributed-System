@@ -1,0 +1,120 @@
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+
+public class WorkerThread implements Runnable
+{
+	Socket socket;
+	RemoteRefModule remoteReferenceModule;
+	
+	public WorkerThread(Socket socket, RemoteRefModule remoteReferenceModule)
+	{
+		this.socket = socket;
+		this.remoteReferenceModule = remoteReferenceModule;
+	}
+
+	@Override
+	public void run()
+	{
+		try
+		{
+			ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			
+			Object object = objectInputStream.readObject();
+			RemoteObject remoteObject = (RemoteObject)object;
+			
+			System.out.println("Reqest recieved ObjectId: " + remoteObject.getObjectId());
+			System.out.println("MethodName: " + remoteObject.getMethodName());
+			System.out.println("Parameter: " + remoteObject.getParameter());
+			
+			Object localObject = remoteReferenceModule.getRemoteObject(remoteObject.getObjectId());
+			
+			Object returnObject = null;
+			if(localObject instanceof MegaMillion)
+			{
+				//MegaMillionSkeleton megaMillionSkeleton = new MegaMillionSkeleton();
+				//returnObject = megaMillionSkeleton.unmarshall(remoteObject, (MegaMillion)localObject);
+				MegaMillion megaMillionLocal = (MegaMillion)localObject;
+				if(remoteObject.getMethodName().equals("sellTicketQuickPick"))
+				{
+					returnObject = (Object)megaMillionLocal.sellTicketQuickPick();
+				
+				}
+				else if(remoteObject.getMethodName().equals("sellTicketManual"))
+				{
+					String ticketNo = remoteObject.getParameter();
+					returnObject = megaMillionLocal.sellTicketManual(ticketNo);
+					
+					
+				}
+				else if(remoteObject.getMethodName().equals("getPastJackPotNumbers"))
+				{
+					
+					returnObject = (Object)megaMillionLocal.getPastJackPotNumbers();
+					
+				}
+				else if(remoteObject.getMethodName().equals("checkWinner"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					returnObject = (Object)megaMillionLocal.checkWinner(parameters[1], Integer.parseInt(parameters[0]));
+				}
+				
+			}
+			if(localObject instanceof PowerBall)
+			{
+				//PowerBallSkeleton powerBallSkeleton = new PowerBallSkeleton();
+				//returnObject = powerBallSkeleton.unmarshall(remoteObject, (PowerBall)localObject);
+				PowerBall powerBallLocal = (PowerBall)localObject;
+				if(remoteObject.getMethodName().equals("sellTicketQuickPick"))
+				{
+					returnObject = (Object)powerBallLocal.sellTicketQuickPick();
+				}
+				else if(remoteObject.getMethodName().equals("sellTicketManual"))
+				{
+					String ticketNo = remoteObject.getParameter();
+					returnObject = (Object)powerBallLocal.sellTicketManual(ticketNo);
+					
+					
+				}
+				else if(remoteObject.getMethodName().equals("getPastJackPotNumbers"))
+				{
+					
+					String[] jackpotNumbers = powerBall.getPastJackPotNumbers();
+					
+					System.out.println("PowerBall Return Result: ");
+					
+					for(String jackpot : jackpotNumbers)
+					{
+						System.out.println("jackpot numbers: " + jackpot);
+					}
+					
+					return (Object)jackpotNumbers;
+				}
+				else if(remoteObject.getMethodName().equals("checkWinner"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					boolean result = powerBall.checkWinner(parameters[1], Integer.parseInt(parameters[0]));
+					
+					System.out.println("PowerBall Return Result: " + result);
+					
+					return (Object)result;
+				}
+			}
+			System.out.println("");
+				
+			objectOutputStream.writeObject(returnObject);
+			
+			objectOutputStream.close();
+			objectInputStream.close();
+			socket.close();
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("WorkerThread.run() -> " + ex.toString());
+		}
+	}
+	
+}

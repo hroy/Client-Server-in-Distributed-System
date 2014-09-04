@@ -1,0 +1,37 @@
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Dispatcher 
+{
+	
+	
+	public Dispatcher(int port)
+	{
+		
+	}
+	
+	public void listenSocket()
+	{
+		try
+		{
+			
+			
+			int i = 0;
+			while(true)
+			{
+				socket = serverSocket.accept();
+				
+				WorkerThread workerThread = new WorkerThread(socket, mapTable);
+				Thread thread = new Thread(workerThread);
+				thread.start();
+				
+				i++;
+			}
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Dispatcher.listenRequest() -> " + ex.toString());
+		}
+		
+	}
+}

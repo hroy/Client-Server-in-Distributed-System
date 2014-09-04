@@ -1,0 +1,79 @@
+
+public class PowerBallSkeleton implements PowerBallInterface 
+{
+
+	@Override
+	public String sellTicketQuickPick() 
+	{
+		return null;
+	}
+
+	@Override
+	public Object sellTicketManual(String ticketNo) 
+	{
+		return null;
+	}
+
+	@Override
+	public String[] getPastJackPotNumbers() 
+	{
+		return null;
+	}
+
+	@Override
+	public boolean checkWinner(String ticketNo, int roundNo) 
+	{
+		return false;
+	}
+	
+	public Object unmarshall(RemoteObject remoteObject, PowerBall powerBall)
+	{
+		
+		if(remoteObject.getMethodName().equals("sellTicketQuickPick"))
+		{
+			String ticketNo = powerBall.sellTicketQuickPick();
+			
+			System.out.println("PowerBall Return Result: " + ticketNo);
+			
+			return (Object)ticketNo;
+		}
+		else if(remoteObject.getMethodName().equals("sellTicketManual"))
+		{
+			String ticketNo = remoteObject.getParameter();
+			Object resultObject = powerBall.sellTicketManual(ticketNo);
+			
+			if(resultObject instanceof Integer)
+				System.out.println("PowerBall Return Result: " + (Integer)resultObject);
+			else
+				System.out.println("PowerBall Return Result: " + (boolean)resultObject);
+			
+			
+			return resultObject;
+		}
+		else if(remoteObject.getMethodName().equals("getPastJackPotNumbers"))
+		{
+			
+			String[] jackpotNumbers = powerBall.getPastJackPotNumbers();
+			
+			System.out.println("PowerBall Return Result: ");
+			
+			for(String jackpot : jackpotNumbers)
+			{
+				System.out.println("jackpot numbers: " + jackpot);
+			}
+			
+			return (Object)jackpotNumbers;
+		}
+		else if(remoteObject.getMethodName().equals("checkWinner"))
+		{
+			String[] parameters = remoteObject.getParameter().split(",");
+			boolean result = powerBall.checkWinner(parameters[1], Integer.parseInt(parameters[0]));
+			
+			System.out.println("PowerBall Return Result: " + result);
+			
+			return (Object)result;
+		}
+		return null;
+	}
+
+}

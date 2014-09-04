@@ -1,0 +1,79 @@
+import java.util.ArrayList;
+
+
+public class AccountSkeleton implements AccountInterface 
+{
+	RemoteObject remoteObject;
+	Account account;
+	
+	public AccountSkeleton(RemoteObject remoteObject, Account account)
+	{
+		this.remoteObject = remoteObject;
+		this.account = account;
+	}
+	
+	@Override
+	public void addBalance(int amount) 
+	{
+
+	}
+
+	@Override
+	public int checkBalance() 
+	{
+		return 0;
+	}
+
+	@Override
+	public String buyTicket(String lotteryType, String pickType, String ticketNo) 
+	{
+		return null;
+	}
+
+	@Override
+	public ArrayList<Ticket> getHistoryTicket() 
+	{
+		return null;
+	}
+	
+	public Object unmarshall()
+	{
+		try
+		{
+			String methodName = remoteObject.getMethodName();
+			
+			if(methodName.equals("addBalance"))
+			{
+				int amount = Integer.parseInt(remoteObject.getParameter());
+				
+				account.addBalance(amount);
+				
+				return null;
+			}
+			else if(methodName.equals("checkBalance"))
+			{
+				int balance = account.checkBalance();
+				
+				return (Object)balance;
+			}
+			else if(methodName.equals("buyTicket"))
+			{
+				String[] parameters = remoteObject.getParameter().split(",");
+				account.buyTicket(parameters[0], parameters[1], parameters[2]);
+			}
+			else if(methodName.equals("getHistoryTicket"))
+			{
+				return account.getHistoryTicket();
+			}
+			
+			return null;
+		}
+		catch(Exception ex)
+		{
+			System.out.println("AccountSkeleton.unmarshall() -> " + ex.toString());
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+}

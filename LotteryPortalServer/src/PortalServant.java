@@ -40,8 +40,6 @@ public class PortalServant implements PortalServantInterface
 	@Override
 	public synchronized Object login(String userName, String password) 
 	{
-		this.loadState();
-		
 		for(Account account : accountList)
 		{
 			if(account.getUserName().equals(userName) && account.getPassword().equals(password))
@@ -135,7 +133,7 @@ public class PortalServant implements PortalServantInterface
 				
 				for (Account account : accountList) 
 				{
-					System.out.println(account.getUserName() + "  " + account.getPassword() + " "+ account.getHistoryTicket().size());
+					System.err.println(account.getUserName() + "  " + account.getPassword() + " "+ account.getHistoryTicket().size());
 					RemoteRefLocalMap.addObject(((ROR)account.getRemoteObject()).getObjectId(), account);
 				} 
 			}

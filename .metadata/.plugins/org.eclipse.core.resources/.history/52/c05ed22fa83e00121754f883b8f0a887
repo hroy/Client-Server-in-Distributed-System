@@ -1,0 +1,24 @@
+import java.util.HashMap;
+
+
+public class RemoteRefModule 
+{
+	private HashMap<String, Object> objectList = new HashMap<String, Object>();
+	
+	public RemoteRefModule()
+	{
+		
+	}
+	
+	public void addRemoteObject(String objectId, Object object)
+	{
+		//objectList.put(((RemoteObject)object).getObjectId(), object);
+		objectList.put(objectId, object);
+		
+	}
+	
+	public Object getRemoteObject(String objectId)
+	{
+		return objectList.get(objectId);
+	}
+}

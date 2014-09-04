@@ -1,0 +1,174 @@
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Random;
+
+
+public class Account implements AccountInterface, Serializable
+{
+	private String userName;
+	private String password;
+	private int balance = 0;
+	
+	private ArrayList<Ticket> ticketList = new ArrayList<Ticket>();
+	String jackpotNumber = "123456";
+	
+	RemoteObject remoteObject;
+	RemoteObject megaRemoteObject;
+	RemoteObject powerRemoteObject;
+	
+	public Account(String host, int port, String objectId, String userName, String password, RemoteObject megaRemoteObject, RemoteObject powerRemtoeObject)
+	{
+		remoteObject = new RemoteObject(host, port, objectId, "Account");
+		this.userName = userName;
+		this.password = password;
+		this.balance = 50;
+		
+		this.megaRemoteObject = megaRemoteObject;
+		this.powerRemoteObject = powerRemtoeObject;
+		//System.out.println("megaObject: " + megaRemoteObject.getHostAddress());
+		//System.out.println("megaObject: " + megaRemoteObject.getObjectId());
+		//System.out.println("megaObject: " + megaRemoteObject.getHostPort());
+	}
+	
+	@Override
+	public void addBalance(int amount) 
+	{
+		balance += amount;
+		
+		RemoteRefModule.addObject(remoteObject.getObjectId(), this);
+	}
+
+	@Override
+	public int checkBalance() 
+	{
+		return balance;
+	}
+
+	@Override
+	public String buyTicket(String lotteryType, String pickType, String ticketNo) 
+	{
+		try
+		{
+			if(balance < 10)
+				return null;
+			
+			if(lotteryType.equals("MegaMillion"))
+			{
+				MegaMillionStub megaMillionStub = new MegaMillionStub(megaRemoteObject);
+				if(pickType.equals("quickpick"))
+				{
+					String result = megaMillionStub.sellTicketQuickPick();
+					String[] values = result.split(",");
+					
+					Ticket ticket = new Ticket(lotteryType, values[1], Integer.parseInt(values[0]));
+					
+					boolean winner = megaMillionStub.checkWinner(values[1], Integer.parseInt(values[0]));
+					
+					ticket.setWinner(winner);
+					
+					ticketList.add(ticket);
+					balance -= 10;
+					
+					System.out.println("Input from mega: " + result + ", " + winner);
+				}
+				if(pickType.equals("manual"))
+				{
+					Object resultObject = megaMillionStub.sellTicketManual(ticketNo);
+					if(resultObject instanceof Integer)
+					{
+						Ticket ticket = new Ticket(lotteryType, ticketNo, (Integer)resultObject);
+						
+						boolean winner = megaMillionStub.checkWinner(ticketNo, (Integer)resultObject);
+						
+						ticket.setWinner(winner);
+						
+						ticketList.add(ticket);
+						balance -= 10;
+						
+						System.out.println("Input from mega: " + (Integer)resultObject + ", " + winner);
+					}
+					else
+						System.out.println("Input from mega: " + (boolean)resultObject);
+				}
+			}
+			else if(lotteryType.equals("PowerBall"))
+			{
+				PowerBallStub powerBallStub = new PowerBallStub(powerRemoteObject);
+				if(pickType.equals("quickpick"))
+				{
+					String result = powerBallStub.sellTicketQuickPick();
+					String[] values = result.split(",");
+					
+					Ticket ticket = new Ticket(lotteryType, values[1], Integer.parseInt(values[0]));
+					
+					boolean winner = powerBallStub.checkWinner(values[1], Integer.parseInt(values[0]));
+					
+					ticket.setWinner(winner);
+					
+					ticketList.add(ticket);
+					balance -= 10;
+					
+					System.out.println("Input from mega: " + result + ", " + winner);
+				}
+				if(pickType.equals("manual"))
+				{
+					Object resultObject = powerBallStub.sellTicketManual(ticketNo);
+					if(resultObject instanceof Integer)
+					{
+						Ticket ticket = new Ticket(lotteryType, ticketNo, (Integer)resultObject);
+						
+						boolean winner = powerBallStub.checkWinner(ticketNo, (Integer)resultObject);
+						
+						ticket.setWinner(winner);
+						
+						ticketList.add(ticket);
+						balance -= 10;
+						
+						System.out.println("Input from power: " + (Integer)resultObject + ", " + winner);
+					}
+					else
+						System.out.println("Input from power: " + (boolean)resultObject);
+				}
+			}
+			RemoteRefModule.addObject(remoteObject.getObjectId(), (Object)this);
+			
+			
+			return ticketNo;
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Account.buyTicket(String lotteryType, String pickType, String ticketNo) -> " + ex.toString());
+			return null;
+		}
+	}
+	
+	@Override
+	public ArrayList<Ticket> getHistoryTicket() 
+	{
+		/*
+		MegaMillionStub megaMillionStub = new MegaMillionStub(megaRemoteObject);
+		String[] jackpotNumbes = megaMillionStub.getPastJackPotNumbers();
+		
+		for(String s : jackpotNumbes)
+		{
+			System.out.println(s);
+		}
+		*/
+		return ticketList;
+	}
+
+	public String getUserName() 
+	{
+		return userName;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	
+	public RemoteObject getRemoteObject()
+	{
+		return remoteObject;
+	}
+}

@@ -1,0 +1,73 @@
+import java.util.UUID;
+import java.io.Serializable;
+
+public class RemoteObject implements Serializable 
+{
+	private String hostAddress = "";
+	private int hostPort = -1;
+	private String objectId = "";
+	private String methodName = "";
+	private String alias = "";
+	private String parameter = "";
+	private String className = "";
+	
+	
+	protected RemoteObject(String address, int port, String objectId, String className)
+	{
+		this.hostAddress = address;
+		this.hostPort = port;
+		//this.objectId = UUID.randomUUID().toString();
+		this.objectId = objectId;
+		this.className = className;
+	}
+	
+	public String getHostAddress()
+	{
+		return this.hostAddress;
+	}
+	
+	public int getHostPort()
+	{
+		return this.hostPort;
+	}
+	
+	public String getObjectId()
+	{
+		return this.objectId;
+	}
+	
+	public String getMethodName()
+	{
+		return this.methodName;
+	}
+	
+	public String getAlias()
+	{
+		return this.alias;
+	}
+	
+	public String getParameter()
+	{
+		return parameter;
+	}
+	
+	public void setMethodName(String methodName)
+	{
+		this.methodName = methodName;
+	}
+	
+	public void setAlias(String alias)
+	{
+		this.alias = alias;
+	}
+	
+	public void setParameter(String parameter)
+	{
+		this.parameter = parameter;
+	}
+	
+	public String getClassName()
+	{
+		return this.className;
+	}
+}

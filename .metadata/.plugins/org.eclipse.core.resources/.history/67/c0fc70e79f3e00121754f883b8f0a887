@@ -1,0 +1,49 @@
+import java.util.ArrayList;
+
+
+public class Client 
+{
+//	static String NAMING_SERVER_HOST = "localhost";
+//	static int NAMING_SERVER_PORT = 5555;
+//	
+//	static String PORTAL_SERVER_HOST = "localhost";
+//	static int PORTAL_SERVER_PORT = 6666;
+	
+	public static void main(String[] args) 
+	{
+		NamingProxy namingPrxy = new NamingProxy(Info.NAMING_SERVER_HOST, Info.NAMING_SERVER_PORT);
+		ROR remoteObject = (ROR)namingPrxy.lookup("PortalServant");
+		
+		PortalServantProxy protalServantStub = new PortalServantProxy(remoteObject);
+		
+		remoteObject = (ROR)protalServantStub.openAccount("A", "A", "2");
+		
+		remoteObject = (ROR)protalServantStub.login("A", "A");
+		
+		if(remoteObject != null)
+		{
+			System.out.println("Login success");
+			
+			AccountProxy accountStub = new AccountProxy(remoteObject);
+			
+			accountStub.addBalance(10);
+			System.out.println("New Balance: " + accountStub.checkBalance());
+			
+			accountStub.buyTicket("MegaMillion", "quickpick", null);
+			accountStub.buyTicket("MegaMillion", "quickpick", null);
+			accountStub.buyTicket("PowerBall", "quickpick", null);
+			accountStub.buyTicket("MegaMillion", "manual", "123456");
+			accountStub.buyTicket("MegaMillion", "manual", "123456");
+			
+			ArrayList<Ticket> ticketList  = accountStub.getHistoryTicket();
+			for(Ticket ticket : ticketList)
+			{
+				System.out.println(ticket.ticketNo + " -> " + ticket.roundNo + " -> " + ticket.lotteryType + " -> " + ticket.jackpotNumber);
+			}
+		}
+		else
+		{
+			System.out.println("Longin failed");
+		}
+	}
+}

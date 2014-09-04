@@ -1,0 +1,132 @@
+import java.awt.List;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+
+
+public class LotteryPortalMain 
+{
+	static String HOST = "localhost";
+	static int PORT = 6666;
+
+	static String NAMING_SERVER_HOST = "localhost";
+	static int NAMING_SERVER_PORT = 5555;
+	
+	public static void main(String[] args) 
+	{
+		try
+		{
+			HashMap<String, Object> objectList = new HashMap<String, Object>();
+			
+			NamingProxy namingStub = new NamingProxy(NAMING_SERVER_HOST, NAMING_SERVER_PORT);
+			
+			ROR remoteObject = (ROR)namingStub.lookup("MegaMillion");
+			MegaMillionProxy megaMillionStub = new MegaMillionProxy(remoteObject);
+			
+			remoteObject = (ROR)namingStub.lookup("PowerBall");
+			PowerBallProxy powerBallStub = new PowerBallProxy(remoteObject);
+					
+			
+			PortalServant portalServant = new PortalServant(HOST, PORT, "1");
+			portalServant.setMegaMillionStub(megaMillionStub);
+			portalServant.setPowerBallStub(powerBallStub);
+			
+			RemoteRefModule.addObject(portalServant.getRemoteObject().getObjectId(), portalServant);
+			
+			namingStub.bind("PortalServant", portalServant.getRemoteObject());
+			
+			
+			ServerSocket serverSocket = new ServerSocket(PORT);
+			while(true)
+			{
+				Socket socket = serverSocket.accept();
+				
+				Servent workerThread = new Servent(socket, portalServant);
+				Thread thread = new Thread(workerThread);
+				thread.start();
+			}
+			/*
+			RemoteObject remoteObject = (RemoteObject)namingStub.lookup("MegaMillion");
+			
+			MegaMillionStub megaMillionStub = new MegaMillionStub(remoteObject);
+			String string = megaMillionStub.sellTicketQuickPick();
+			System.out.println("Ticket received: " + string);
+			System.out.println(megaMillionStub.sellTicketManual("12345678"));
+			
+			ArrayList<String> jackpotList = megaMillionStub.getPastJackPotNumbers();
+			for(String jackpot : jackpotList)
+			{
+				System.out.println("Jackpot Numbers: " + jackpot);
+			}
+			
+			System.out.println(megaMillionStub.checkWinner("02345678"));
+			*/
+			/*
+			portalServant.openAccount("A", "C", "2");
+			portalServant.openAccount("B", "B", "3");
+			//portalServant.openAccount("C", "C", "4");
+			//portalServant.openAccount("D", "D", "5");
+			
+			//portalServant.closeAccount("A", "C");
+			//portalServant.closeAccount("C", "C");
+			
+			
+			Object object = portalServant.login("B", "B");
+			if(object instanceof RemoteObject)
+			{
+				RemoteObject remoteObject = (RemoteObject)object;
+				System.out.println("Login success: " + remoteObject.getObjectId());
+				
+				Object localObject = RemoteRefModule.getObject(remoteObject.getObjectId());
+				Account localAccountObject = (Account)localObject;
+				
+				System.out.println("UserName: " + localAccountObject.getUserName());
+				System.out.println("Password: " + localAccountObject.getPassword());
+				
+				
+				//localAccountObject.buyTicket("Test", "quickpick", null);
+				//localAccountObject.buyTicket("Test", "quickpick", null);
+				//localAccountObject.buyTicket("Testa", "maual", "aaaaaa");
+				
+				//portalServant.saveState();
+				
+				
+				System.out.println("Balance: " + localAccountObject.checkBalance());
+				
+				ArrayList<Ticket> ticketList = localAccountObject.getHistoryTicket();
+				for(Ticket ticket : ticketList)
+				{
+					System.out.println(ticket.lotteryType + ", " + ticket.ticketNo + ", " + ticket.jackpotNumber);
+				}
+				
+				System.out.println(((Account)RemoteRefModule.getObject("3")).checkBalance());
+				
+				for(Account account : portalServant.accountList)
+				{
+					System.out.println(account.getUserName() + " -> " + account.checkBalance());
+				}
+				
+			}
+			else
+			{
+				System.out.println((String)object);
+			}
+			*/
+			/*
+			for(Account account : portalServant.accoutList)
+			{
+				System.out.println(account.getUserName());
+			}
+			*/
+			//NamingStub namingStub = new NamingStub(NAMING_SERVER_HOST, NAMING_SERVER_PORT);
+			//namingStub.bind("PortalServant", portalServant.getRemoteObject());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("MainProgram.main(String[] args): " + ex.toString());
+		}
+	}
+	
+}

@@ -1,0 +1,126 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+
+
+public class PowerBall implements PowerBallInterface 
+{
+
+	private int ticketCount;
+	private int roundNo;
+	private ArrayList<Ticket>ticketList = new ArrayList<Ticket>();
+	private HashMap<Integer, String> jackpotNumbers = new HashMap<Integer, String>();
+	
+	private RemoteObject remoteObject;
+	
+	public PowerBall(String host, int port, String objectId)
+	{
+		remoteObject = new RemoteObject(host, port, objectId, "PowerBall");
+		
+		this.ticketCount = 1;
+		this.roundNo = 1;
+		
+		jackpotNumbers.put(1, "12345678");
+	}
+		
+	@Override
+	public synchronized String sellTicketQuickPick()
+	{
+		String ticketNo;
+	
+		while(true)
+		{
+			ticketNo = Utility.generateTicketNumber();
+			if(!this.ticketAlreadExists(ticketNo))
+				break;
+		}
+		Ticket ticket = new Ticket("PowerBall", ticketNo, roundNo);
+		ticketList.add(ticket);
+
+		this.increaseTicketCount();
+		
+		return ticket.getRoundNo() + "," + ticket.getTicketNo();
+	}
+	
+	@Override
+	public synchronized Object sellTicketManual(String ticketNo)
+	{
+		if(ticketNo.length() == 8 && !ticketAlreadExists(ticketNo))
+		{
+			Ticket ticket = new Ticket("PowerBall", ticketNo, roundNo);
+			ticketList.add(ticket);
+			
+			this.increaseTicketCount();
+			
+			return (Object)roundNo;
+		}
+		else
+			return (Object)false;
+	}
+	
+	@Override
+	public synchronized String[] getPastJackPotNumbers()
+	{
+		int size = roundNo >= 5 ? 5 : roundNo;
+		
+		String[] numbers = new String[size];
+		for(int i = 0, j = roundNo; i < size; i++, j--)
+		{
+			numbers[i] = jackpotNumbers.get(j);
+		}
+		
+		return numbers;
+	}
+	
+	@Override
+	public synchronized boolean checkWinner(String ticketNo, int roundNo)
+	{
+		String jacpotNumber = jackpotNumbers.get(roundNo);
+		if(jacpotNumber != null)
+		{
+			if(jacpotNumber.equals(ticketNo))
+				return true;
+		}
+		return false;
+	}
+	
+	public RemoteObject getRemoteObject()
+	{
+		return remoteObject;
+	}
+	
+	public synchronized void restart()
+	{
+		this.ticketCount = 1;
+		this.roundNo++;
+	}
+	
+	public synchronized void generateJackpotNumber()
+	{
+		String jackpotNumer = Utility.generateTicketNumber();
+		jackpotNumbers.put(roundNo, jackpotNumer);
+		
+	}
+	
+	public synchronized boolean ticketAlreadExists(String ticketNo)
+	{
+		for(Ticket ticket : ticketList)
+		{
+			if(ticket.getTicketNo().equals(ticketNo) && ticket.getRoundNo() == roundNo)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public synchronized void increaseTicketCount()
+	{
+		ticketCount++;
+		if(ticketCount > 500)
+		{
+			roundNo++;
+			ticketCount = 1;
+		}
+	}
+
+}

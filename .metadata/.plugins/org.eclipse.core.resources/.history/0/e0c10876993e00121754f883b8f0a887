@@ -1,0 +1,18 @@
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class MainProgram 
+{
+	ServerSocket serverSocket;
+	Socket socket;
+	Naming mapTable;
+	
+	int port = 5555;
+	this.port = port;
+	mapTable = new Naming();
+	public static void main(String[] args) 
+	{
+		Dispatcher dispatcher = new Dispatcher(5555);
+		dispatcher.listenSocket();
+	}
+}

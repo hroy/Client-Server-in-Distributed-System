@@ -1,0 +1,82 @@
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+
+public class WorkerThread  implements Runnable
+{
+	Naming naming;
+	Socket socket;
+	
+	public WorkerThread(Socket socket, Naming naming)
+	{
+		this.naming = naming;
+		this.socket = socket;
+	}
+	
+	public void run()
+	{
+		try
+		{
+			InputStream inputStream = socket.getInputStream();
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+			
+			Object object = (Object)objectInputStream.readObject();
+			
+			if(object instanceof RemoteObject)
+			{
+				RemoteObject remoteObject = (RemoteObject)object;
+				
+				String methodName = remoteObject.getMethodName(); 
+				
+				if(methodName.equals("bind"))
+				{
+					String alias = remoteObject.getAlias();
+					naming.bind(alias, object);
+					
+					System.out.println("bind Request found");
+					System.out.println("HostAddress:" + remoteObject.getHostAddress());
+					System.out.println("HostPort:" + remoteObject.getHostPort());
+					System.out.println("Object Id:" + remoteObject.getObjectId());
+					System.out.println("Alias:" + remoteObject.getAlias());
+					System.out.println("");
+				}
+				
+			}
+			else if(object instanceof String)
+			{
+				String objectName = (String)object;
+				System.out.println("lookup Request found: " + objectName);
+				
+				Object lookupObject = naming.lookup(objectName);
+				if(lookupObject != null)
+				{
+					System.out.println("HostAddress:" + ((RemoteObject)lookupObject).getHostAddress());
+					System.out.println("HostPort:" + ((RemoteObject)lookupObject).getHostPort());
+					System.out.println("Object Id:" + ((RemoteObject)lookupObject).getObjectId());
+				}
+				else
+				{
+					System.out.println("No data found");
+				}
+				System.out.println("");
+				
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+				objectOutputStream.writeObject(lookupObject);
+				
+				objectOutputStream.close();
+			}
+			
+			inputStream.close();
+			objectInputStream.close();
+			socket.close();
+		}
+		catch(Exception ex)
+		{
+			System.out.println("WorkerThread.run() -> " + ex.toString());
+		}
+	}
+	
+	
+}

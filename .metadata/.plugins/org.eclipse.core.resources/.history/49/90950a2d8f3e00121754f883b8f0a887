@@ -1,0 +1,85 @@
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+
+public class WorkerThread implements Runnable
+{
+	Socket socket;
+	PortalServant portalServant;
+	
+	public WorkerThread(Socket socket, PortalServant portalServant)
+	{
+		this.socket = socket;
+		this.portalServant = portalServant;
+	}
+
+	@Override
+	public void run()
+	{
+		try
+		{
+			ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			
+			Object object = objectInputStream.readObject();
+			RemoteObject remoteObject = (RemoteObject)object;
+			
+			System.out.println("Reqest recieved ObjectId: " + remoteObject.getObjectId());
+			System.out.println("MethodName: " + remoteObject.getMethodName());
+			System.out.println("Parameter: " + remoteObject.getParameter());
+			
+			Object localObject = RemoteRefModule.getObject(remoteObject.getObjectId());
+			
+			Object returnObject = null;
+			
+			if(localObject instanceof PortalServant)
+			{
+				//PortalServantSkeleton portalServantSkeleton = new PortalServantSkeleton(remoteObject, (PortalServant)localObject);
+				//returnObject = portalServantSkeleton.unmarshall();
+				if(remoteObject.getMethodName().equals("openAccount"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					
+					returnObject = portalServant.openAccount(parameters[0], parameters[1], parameters[2]);
+					
+									}
+				else if(remoteObject.getMethodName().equals("login"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					
+					returnObject = portalServant.login(parameters[0], parameters[1]);
+				}
+				else if(remoteObject.getMethodName().equals("closeAccount"))
+				{
+					String[] parameters = remoteObject.getParameter().split(",");
+					
+					Object accountObject = portalServant.closeAccount(parameters[0], parameters[1]);
+					
+					return accountObject;
+				}
+			}
+			else if(localObject instanceof Account)
+			{
+				AccountSkeleton accountSkeleton = new AccountSkeleton(remoteObject, (Account)localObject);
+				returnObject = accountSkeleton.unmarshall();
+
+				portalServant.saveState();
+			}
+			
+			System.out.println("");
+			
+			objectOutputStream.writeObject(returnObject);
+			
+			objectOutputStream.close();
+			objectInputStream.close();
+			socket.close();
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("WorkerThread.run() -> " + ex.toString());
+		}
+	}
+	
+}

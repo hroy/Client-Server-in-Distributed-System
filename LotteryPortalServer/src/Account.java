@@ -66,7 +66,7 @@ public class Account implements AccountInterface, Serializable
 					ticketList.add(ticket);
 					balance -= 10;
 					
-					System.out.println("Input from MegaMillion: " + result);
+					System.out.println("Input from MegaMillion: " + result + ", " + winner);
 				}
 				if(pickType.equals("manual"))
 				{
@@ -82,7 +82,7 @@ public class Account implements AccountInterface, Serializable
 						ticketList.add(ticket);
 						balance -= 10;
 						
-						System.out.println("Input from MegaMillion: " + (Integer)resultObject);
+						System.out.println("Input from MegaMillion: " + (Integer)resultObject + ", " + winner);
 					}
 					else
 						System.out.println("Input from MegaMillion: " + (boolean)resultObject);
@@ -105,7 +105,7 @@ public class Account implements AccountInterface, Serializable
 					ticketList.add(ticket);
 					balance -= 10;
 					
-					System.out.println("Input from PowerBall: " + result);
+					System.out.println("Input from PowerBall: " + result + ", " + winner);
 				}
 				if(pickType.equals("manual"))
 				{
@@ -121,7 +121,7 @@ public class Account implements AccountInterface, Serializable
 						ticketList.add(ticket);
 						balance -= 10;
 						
-						System.out.println("Input from PowerBall: " + (Integer)resultObject);
+						System.out.println("Input from PowerBall: " + (Integer)resultObject + ", " + winner);
 					}
 					else
 						System.out.println("Input from PowerBall: " + (boolean)resultObject);
