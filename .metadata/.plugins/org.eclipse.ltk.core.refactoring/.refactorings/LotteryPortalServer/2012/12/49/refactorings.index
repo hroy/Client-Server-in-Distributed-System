@@ -1,0 +1,15 @@
+1354682567991	Delete element
+1354682573402	Delete element
+1354686063978	Rename type 'MainProgram'
+1354688338684	Rename type 'WorkerThread'
+1354688395889	Rename type 'RemoteRefModule'
+1354688608141	Rename local variable 'namingStub'
+1354688633215	Rename local variable 'megaMillionStub'
+1354688651808	Rename local variable 'powerBallStub'
+1354688707411	Rename local variable 'workerThread'
+1354689513447	Rename field 'megaMillionStub'
+1354689525489	Rename field 'powerBallStub'
+1354689701464	Rename local variable 'megaMillionStub'
+1354689712620	Rename local variable 'powerBallPrxy'
+1354689731550	Rename method 'setMegaMillionStub'
+1354689741931	Rename method 'setPowerBallStub'
